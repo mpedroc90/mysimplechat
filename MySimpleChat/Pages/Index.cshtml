@@ -1,0 +1,33 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<input type="text" id="reportName" placeholder="Enter report name" />
+<input type="button" id="publishReport" value="Publish" />
+<ul id="reports"></ul>
+
+@section Scripts {
+    <script>
+        $(function () {
+
+            let hubUrl = 'http://' + self.location.host+'/reportsPublisher';
+            let httpConnection = new signalR.HttpConnection(hubUrl);
+            let hubConnection = new signalR.HubConnection(httpConnection);
+
+            $("#publishReport").click(function () {
+
+                hubConnection.invoke('PublishReport', $('#reportName').val());
+            });
+
+            hubConnection.on('OnReportPublished', data => {
+                $('#reports').append($('<li>').text(data));
+            });
+
+
+            hubConnection.start();
+
+        });
+    </script>
+}
